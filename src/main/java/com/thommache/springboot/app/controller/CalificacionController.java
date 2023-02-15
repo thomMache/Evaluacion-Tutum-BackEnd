@@ -1,9 +1,13 @@
 package com.thommache.springboot.app.controller;
 
+import com.thommache.springboot.app.dto.CalificacionDTO;
+import com.thommache.springboot.app.dto.CalificacionRequest;
+import com.thommache.springboot.app.dto.ResponseDTO;
 import com.thommache.springboot.app.entity.Calificacion;
 import com.thommache.springboot.app.services.CalificacionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -15,27 +19,43 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin({"http://localhost:4200"})
 @RequestMapping("/calificaciones")
 public class CalificacionController {
 
     @Autowired
     private CalificacionService service;
 
+    @Autowired
+    private com.thommache.springboot.app.serviceImpl.CalificacionesServiceImpl calificacionServiceImpl;
+
     @GetMapping("/{idAlumno}")
-    public ResponseEntity<?> listarCalificacionesPorAlumnoId(@PathVariable Long idAlumno) {
+    public ResponseEntity<List<Calificacion>> listarCalificacionesPorAlumnoId(@PathVariable Long idAlumno) {
       return ResponseEntity.ok(service.listarCalificacionesPorAlumnoId(idAlumno));
     }
 
-    @PostMapping
-    public ResponseEntity<?> guardar(@Valid @RequestBody Calificacion calificacion, BindingResult result) {
-      if (result.hasErrors()) {
+ /*   @PostMapping
+    public ResponseEntity<Calificacion> guardar(@Valid @RequestBody Calificacion calificacion, BindingResult result) {
+   /*   if (result.hasErrors()) {
             return validar(result);
         }
+        System.out.println(calificacion.getCalificacion() + " bbbbbbbbbbbbbbbbbbbbbb");
+        System.out.println(calificacion.getAlumno() + " 00000000000");
+        System.out.println(calificacion.getMateria()+ " aaaaaaaaaaaaa");
+
         Calificacion calificacionDb = service.guardar(calificacion);
         Map<String, String> msg = new HashMap<>();
         msg.put("msg","calificacion actualizada");
         msg.put("success","ok");
-        return ResponseEntity.status(HttpStatus.CREATED).body(calificacionDb);
+        return new ResponseEntity<>(calificacionDb,HttpStatus.OK);
+       // return ResponseEntity.status(HttpStatus.CREATED).body(calificacionDb);
+    }*/
+
+
+    @PostMapping
+    public ResponseEntity<ResponseDTO> guardar(@RequestBody CalificacionRequest requestPayload) {
+        ResponseEntity<ResponseDTO> response = new ResponseEntity<ResponseDTO>(calificacionServiceImpl.guardarCalificacion(requestPayload), HttpStatus.OK);
+        return response;
     }
 
     @PutMapping("/{id}")
@@ -50,8 +70,8 @@ public class CalificacionController {
             Calificacion calificacionDb = o.get();
             calificacionDb.setCalificacion(calificacion.getCalificacion());
             calificacionDb.setFecha(calificacion.getFecha());
-            calificacionDb.setIdAlumnos(calificacion.getIdAlumnos());
-            calificacionDb.setIdMaterias(calificacion.getIdMaterias());
+            calificacionDb.setAlumno(calificacion.getAlumno());
+            calificacionDb.setMateria(calificacion.getMateria());
             service.actualizar(calificacionDb);
             Map<String, String> msg = new HashMap<>();
             msg.put("msg","calificacion actualizada");
@@ -71,7 +91,7 @@ public class CalificacionController {
             msg.put("msg","calificacion eliminada");
             msg.put("success","ok");
             service.eliminar(o.get().getId());
-            return ResponseEntity.ok().body(msg);
+            return new ResponseEntity<>(msg, HttpStatus.OK);
         }
         return ResponseEntity.notFound().build();
     }

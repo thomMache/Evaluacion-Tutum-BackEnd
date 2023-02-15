@@ -2,20 +2,26 @@ package com.thommache.springboot.app.entity;
 
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 @Table(name = "t_calificaciones")
-public class Calificacion  implements Serializable {
+@Setter @Getter
+public class Calificacion  implements  Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_t_calificaciones")
     private Long id;
 
     @NotNull
@@ -23,54 +29,21 @@ public class Calificacion  implements Serializable {
 
     @NotNull
     @Column(name = "fecha_registro")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date fecha;
 
+    @JsonIgnoreProperties( {"hibernateLazyInitializer", "handler"})
+    @OneToOne( fetch = FetchType.LAZY)
+    @JoinColumn(name = "materia_id", referencedColumnName = "id")
+    private Materia materia;
 
-    @Column(name = "id_t_alumnos")
-    private Long idAlumnos;
+    @JsonIgnoreProperties( {"hibernateLazyInitializer", "handler"})
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "alumno_id",referencedColumnName = "id")
+    private Alumno alumno;
 
-    @Column(name = "id_t_materias")
-    private Long idMaterias;
+    private static final long serialVersionUID = 1L;
 
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Double getCalificacion() {
-        return calificacion;
-    }
-
-    public void setCalificacion(Double calificacion) {
-        this.calificacion = calificacion;
-    }
-
-    public Date getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
-    }
-
-    public Long getIdAlumnos() {
-        return idAlumnos;
-    }
-
-    public void setIdAlumnos(Long idAlumnos) {
-        this.idAlumnos = idAlumnos;
-    }
-
-    public Long getIdMaterias() {
-        return idMaterias;
-    }
-
-    public void setIdMaterias(Long idMaterias) {
-        this.idMaterias = idMaterias;
-    }
 }
 
